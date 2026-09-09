@@ -42,23 +42,26 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Start app stack
+      - name: Prepare application for CI
+        shell: bash
         run: |
-          docker compose -f qa-admin-portal-automation/docker-compose.yml up -d --build --wait || {
-            echo "===== DOCKER COMPOSE PS ====="
-            docker compose -f qa-admin-portal-automation/docker-compose.yml ps
+          echo "Checking application healthcheck..."
 
-            echo "===== WEB LOGS ====="
-            docker compose -f qa-admin-portal-automation/docker-compose.yml logs web
+          grep -q 'wget -q -O - http://localhost:8080/' \
+            qa-admin-portal-automation/docker-compose.yml
 
-            echo "===== TEST WEB FROM INSIDE CONTAINER ====="
-            docker exec qa-admin-portal-automation-web-1 wget -S -O - http://localhost:8080/
+          echo "Updating web healthcheck for CI..."
 
-            echo "===== WEB HEALTH ====="
-            docker inspect qa-admin-portal-automation-web-1 --format='{{json .State.Health}}'
+          sed -i \
+            's|wget -q -O - http://localhost:8080/|wget -q -O - http://127.0.0.1:8080/|' \
+            qa-admin-portal-automation/docker-compose.yml
 
-            exit 1
-          }
+          echo "Updated healthcheck:"
+          grep -A6 -B2 'healthcheck:' \
+            qa-admin-portal-automation/docker-compose.yml
+
+      - name: Start app stack
+        run: docker compose -f qa-admin-portal-automation/docker-compose.yml up -d --build --wait
 
       - name: Run Playwright tests
         run: npx playwright test

@@ -20,4 +20,14 @@ export class UsersApi {
       },
     });
   }
+
+  async updateUser(id: string, data: { role?: string }) {
+    return await this.request.patch(`/users/${id}`, {
+      data,
+    });
+  }
+
+  async deleteUser(id: string) {
+    return await this.request.delete(`/users/${id}`);
+  }
 }

@@ -36,7 +36,7 @@ export default defineConfig({
   projects: [
     {
       name: "setup",
-      testMatch: /^auth\.setup\.ts$/,
+      testMatch: /tests\/auth\.setup\.ts$/,
     },
     {
       name: "chromium",
@@ -109,6 +109,26 @@ export default defineConfig({
         storageState: "playwright/.auth/api-viewer.json",
       },
       dependencies: ["api-viewer-setup"],
+    },
+
+    {
+      name: "db",
+      testMatch: /db\/.*\.spec\.ts/,
+      use: {
+        baseURL: "http://localhost:3000",
+        storageState: "playwright/.auth/api-admin.json",
+      },
+      dependencies: ["api-setup"],
+    },
+
+    {
+      name: "e2e",
+      testMatch: /e2e\/.*\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "playwright/.auth/admin.json",
+      },
+      dependencies: ["setup"],
     },
 
     /* Test against mobile viewports. */

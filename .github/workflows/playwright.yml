@@ -1,13 +1,16 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
     env:
       ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
@@ -18,8 +21,16 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: qa_admin_portal
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout automation repository
+        uses: actions/checkout@v4
+
+      - name: Checkout application under test
+        uses: actions/checkout@v4
+        with:
+          repository: binfengke/qa-admin-portal-automation
+          path: qa-admin-portal-automation
 
       - uses: actions/setup-node@v4
         with:
@@ -32,14 +43,14 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Start app stack
-        run: docker compose up -d --build --wait
+        run: docker compose -f qa-admin-portal-automation/docker-compose.yml up -d --build --wait
 
       - name: Run Playwright tests
         run: npx playwright test
 
       - name: Stop app stack
         if: always()
-        run: docker compose down -v
+        run: docker compose -f qa-admin-portal-automation/docker-compose.yml down -v
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

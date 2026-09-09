@@ -18,6 +18,7 @@ jobs:
       VIEWER_PASSWORD: ${{ secrets.VIEWER_PASSWORD }}
       DB_HOST: 127.0.0.1
       DB_PORT: 5433
+      DB_HOST_PORT: 5433
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: qa_admin_portal

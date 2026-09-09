@@ -51,6 +51,9 @@ jobs:
             echo "===== WEB LOGS ====="
             docker compose -f qa-admin-portal-automation/docker-compose.yml logs web
 
+            echo "===== TEST WEB FROM INSIDE CONTAINER ====="
+            docker exec qa-admin-portal-automation-web-1 wget -S -O - http://localhost:8080/
+
             echo "===== WEB HEALTH ====="
             docker inspect qa-admin-portal-automation-web-1 --format='{{json .State.Health}}'
 

@@ -203,8 +203,18 @@ test("Deleted project is no longer returned by API search", async ({
 test("Admin can search projects using API", async ({ request }) => {
   const projectsApi = new ProjectsApi(request);
 
+  const name = `Hey Search Project ${Date.now()}`;
+  const key = `H${Date.now().toString().slice(-3)}`;
+
+  const createResponse = await projectsApi.createProject({
+    name,
+    key,
+  });
+
+  expect(createResponse.status()).toBe(201);
+
   const response = await request.get(
-    "/projects?q=hey&page=1&pageSize=20&sort=createdAt:desc",
+    `/projects?q=${encodeURIComponent("Hey Search")}&page=1&pageSize=20&sort=createdAt:desc`,
   );
 
   expect(response.status()).toBe(200);
@@ -217,7 +227,7 @@ test("Admin can search projects using API", async ({ request }) => {
 
   expect(
     projects.items.some((project: { name: string }) =>
-      project.name.toLowerCase().includes("hey"),
+      project.name.toLowerCase().includes("hey search"),
     ),
   ).toBeTruthy();
 });
